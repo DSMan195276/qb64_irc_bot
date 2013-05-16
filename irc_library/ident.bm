@@ -1,0 +1,32 @@
+
+!!if not defined __IRC_LIBRARY_IDENT_BM__
+!!define __IRC_LIBRARY_IDENT_BM__
+
+FUNCTION IRC_start_new_ident_server& (i as IRC_ident_server)
+  i.con = _OPENHOST("TCP/IP:113")
+  if i.con = 0 then IRC_start_new_ident_server& = 0: exit function
+  IRC_start_new_ident_server& = -1
+END FUNCTION
+
+SUB IRC_handle_ident_server (i as IRC_idnet_server)
+  cl& = _OPENCONNECTION(i.con)
+  IF cl& THEN
+    flag = 0
+    DO
+      GET #cl&, , a$
+      'PRINT a$;
+      g$ = g$ + a$
+      IF INSTR(g$, IRC_CRLF$) THEN
+        l$ = MID$(g$, 1, INSTR(g$, IRC_CRLF$) - 1)
+        l1$ = MID$(l$, 1, INSTR(l$, " ") - 1)
+        l2$ = MID$(l$, INSTR(l$, ",") + 1)
+        r$ = l2$ + " , " + l1$ + " : USERID : UNIX : " + MEM_get_str$(i.nick) + IRC_CRLF$
+        PUT #cl&, , r$
+        _DELAY .25
+        flag = -1
+      END IF
+    LOOP UNTIL NOT _CONNECTED(cl&) or flag 'Conection will be closed by server automaticaly
+  END IF
+END SUB
+
+!!endif

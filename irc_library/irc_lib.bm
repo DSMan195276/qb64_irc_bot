@@ -1,0 +1,24 @@
+
+!!if not defined __IRC_LIBRARY_IRC_LIB_BM__
+!!define __IRC_LIBRARY_IRC_LIB_BM__
+
+'$include:'../mem_library/mem_lib.bm'
+'$include:'ident.bm'
+
+SUB IRC_handle_main_loop (i as IRC_connection, events_flag AS LONG)
+STATIC ident as IRC_ident_server, ident_failed as LONG
+
+if IRC_USE_IDENT AND NOT ident_failed then
+  if ident.con = 0 then
+    id = IRC_start_new_ident_server&(ident)
+    if id = 0 then ident_failed = -1
+  else
+    IRC_handle_ident_server ident
+  end if
+end if
+
+END SUB
+
+SUB
+
+!!endif
